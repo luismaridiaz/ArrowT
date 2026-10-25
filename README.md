@@ -15,3 +15,4 @@ Publicar: sube la carpeta entera a Netlify Drop / GitHub Pages / Vercel (index.h
 - Mando elíptico (por defecto) con un solo volante claro estilo Piper: lados = alerones, arriba/abajo = cabeceo. Ajustes permite volver al circular/clásico.
 - Palancas con colores de cabina Piper: gas negra, hélice azul, mezcla roja.
 - Vista de cabina propia (colores y marcos de cada modelo).
+- Panel de mandos y escenario ~1/3 más bajo; instrumentos redondos ocupan el ancho del móvil; (Arrow/L-39) tren como palanca vertical.
