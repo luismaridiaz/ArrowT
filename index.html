@@ -2846,10 +2846,20 @@ const cockpitNose = new THREE.Group();
   B(2.6,0.11,0.5,M(0xa9a9a4,0.5),0,0.45,-0.8,0,0,0);              // techo gris claro
   B(0.06,1.5,0.05,M(0x2b2d31,0.35),-0.92,0.0,-0.8,0,0,-0.22);      // montantes oscuros
   B(0.06,1.5,0.05,M(0x2b2d31,0.35), 0.92,0.0,-0.8,0,0, 0.22);
-  B(0.04,0.2,0.05,M(0x2b2d31,0.35),0,0.34,-0.8,0,0,0);            // refuerzo central
+  B(0.03,0.92,0.04,M(0x2b2d31,0.4),0,0.02,-0.8,0,0,0);            // travesaño central: parabrisas en dos mitades
   B(0.10,1.3,0.1,M(0x17171a,0.3),-1.26,-0.1,-0.7,0,0,0);           // paneles laterales negros
   B(0.10,1.3,0.1,M(0x17171a,0.3), 1.26,-0.1,-0.7,0,0,0);
   C(0.02,0.02,0.015,M(0x0c0c0e,0.25),0,0.30,-0.72,Math.PI/2);         // brújula
+  /* hélice vista desde la cabina (gira con las rpm) */
+  const hub = new THREE.Group(); hub.position.set(0,-0.82,-2.48); cockpitNose.add(hub);
+  const spin = new THREE.Mesh(new THREE.ConeGeometry(0.115,0.34,18), M(0xb92f26,0.55)); spin.rotation.x = -Math.PI/2; spin.position.z = -0.17; hub.add(spin);
+  const rot = new THREE.Group(); hub.add(rot);
+  for(const s of [1,-1]){
+    const bl = new THREE.Mesh(new THREE.BoxGeometry(0.085,0.60,0.012), M(0x16181b,0.35)); bl.position.y = s*0.37; rot.add(bl);
+    const tp = new THREE.Mesh(new THREE.BoxGeometry(0.087,0.10,0.014), M(0xe8c13a,0.6));  tp.position.y = s*0.62; rot.add(tp);
+  }
+  const blur = new THREE.Mesh(new THREE.CircleGeometry(0.67,40), M(0x2a2d33,0.2,0)); blur.material.opacity = 0; blur.position.z = 0.01; hub.add(blur);
+  cockpitNose.userData.prop = rot; cockpitNose.userData.blur = blur;
 })();
 camera.add(cockpitNose);
 
@@ -3760,7 +3770,6 @@ function setView(mode){
   $('btnViewFloat').textContent = (mode==='cockpit') ? 'EXT' : 'CAB';
   cockpitNose.visible = (mode==='cockpit');
   acModel.visible = (mode==='ext');
-  $('gaugePanel').style.display = (mode==='ext') ? 'none' : '';
 }
 
 /* ==========================================================================
@@ -3797,6 +3806,11 @@ function updateTransforms(st){
 
   if(acModel.userData.prop){
     acModel.userData.prop.rotation.z += (0.1 + st.rpm/2600) * 0.9;
+  }
+  if(cockpitNose.userData.prop){
+    const rp = Math.max(0, st.rpm||0);
+    cockpitNose.userData.prop.rotation.z += rp < 40 ? 0 : (0.1 + rp/2600) * 0.9;
+    cockpitNose.userData.blur.material.opacity = rp > 700 ? Math.min(0.2, rp/2600*0.2) : 0;
   }
   const gd = acModel.userData.gear;
   if(gd){ const gpos = st.gearPos; [gd.N, gd.L, gd.R].forEach(g=>{ g.visible = gpos > 0.04; g.scale.y = Math.max(0.05, gpos); }); }
